@@ -10,7 +10,7 @@ jobs:
   prepare:
     runs-on: windows-2025
     steps:
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: '17'
@@ -18,13 +18,29 @@ jobs:
         with:
           gradle-version: '8.5'
           cache-disabled: true
-      - name: Install Android SDK platform 35
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.18.1'
+          package-manager-cache: false
+      - name: Install Android SDK and NDK
         shell: pwsh
         run: |
           $sdkManager = Join-Path $env:ANDROID_HOME 'cmdline-tools/latest/bin/sdkmanager.bat'
-          & $sdkManager 'platforms;android-35'
-      - name: Show tool versions
+          & $sdkManager 'platforms;android-35' 'build-tools;34.0.0' 'build-tools;35.0.1' 'ndk;28.2.13676358'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check installed toolchain
         shell: pwsh
         run: |
+          $PSNativeCommandUseErrorActionPreference = $true
           java -version
           gradle --version
+          python --version
+          node --version
+          npm --version
+          Get-Item -LiteralPath "$env:ANDROID_HOME/platforms/android-35/android.jar" | Select-Object -ExpandProperty Name
+          & "$env:ANDROID_HOME/build-tools/34.0.0/aapt2.exe" version
+          & "$env:ANDROID_HOME/build-tools/35.0.1/apksigner.bat" version
+          & "$env:ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe" --version

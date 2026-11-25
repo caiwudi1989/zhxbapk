@@ -1,10 +1,17 @@
 # zhxbapk
 
-APK 打包环境与服务器接入规则。当前仓库已建立，正式构建工作流及组件包待接入和验证。
+Android APK、iOS IPA 打包环境与服务器接入规则。正式构建工作流及组件包待接入和验证。
 
 ## 构建环境
 
-正式打包先按现有 Windows 入口准备环境。已核对 JDK 17、Android SDK Platform 35 和 Gradle Wrapper 8.5。其余 SDK Build Tools、NDK、Python 和保护工具按选定入口的实际依赖锁定。GitHub 托管机器每次启动新环境，按固定版本安装工具并取回组件。
+在本仓库 **Actions** 手动选择对应的环境工作流。GitHub 托管机器每次启动新环境，按工作流准备并检查下列工具。
+
+| 工作流 | 托管环境 | 项目工具链 |
+| --- | --- | --- |
+| [Android environment](.github/workflows/android-environment.yml) | Windows Server 2025 | JDK 17、Gradle 8.5、SDK Platform 35、Build Tools 34.0.0 / 35.0.1、NDK r28c、Python 3.12、Node.js 20.18.1 |
+| [iOS environment](.github/workflows/ios-environment.yml) | macOS 26 | Xcode 26.6、Swift、真机和模拟器 SDK、代码签名工具、Python 3.12、Node.js 20.18.1 |
+
+两个工作流只准备和检查工具。Android 正式打包沿所选档位的 Windows 入口，iOS 归档和导出沿项目已有的 `ios_app/scripts/release_factory/release_factory.sh`。接入正式打包时，由授权的私有位置提供源码、组件及原签名材料。
 
 ## APP 支持组件
 
